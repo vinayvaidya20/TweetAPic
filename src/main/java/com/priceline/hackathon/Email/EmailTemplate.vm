@@ -1,0 +1,13 @@
+<html>
+<body>
+<h3>Hi ${fName}, we are glad you completed a trip with Priceline.com</h3>
+<div>
+  Here is a chance to score a new deal.
+</div>
+<div>
+   Your email address is <a href="mailto:${fName}">${lName}</a>.
+</div>
+
+</body>
+
+</html>
