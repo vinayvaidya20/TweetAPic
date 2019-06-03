@@ -1,4 +1,4 @@
-package com.priceline.hackathon.tweetAPic;
+/* package com.priceline.hackathon.tweetAPic;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -42,4 +42,4 @@ public class JavaTweet {
 }
 
 }
-
+*/
