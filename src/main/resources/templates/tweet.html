@@ -6,7 +6,10 @@
     <script src="https://cdn.rawgit.com/oauth-io/oauth-js/c5af4519/dist/oauth.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/4.12.0/bootstrap-social.min.css">
-
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 ">
+    <meta name="format-detection" content="telephone=no">
     <style type="text/css">
 
         @import url(https://fonts.googleapis.com/css?family=Roboto:400,300,600,400italic);
@@ -169,6 +172,16 @@
             height: 90px;
             text-align: center;
         }
+        #status-area .flash_message {
+            padding: 5px;
+            color: green;
+            font-size: 20px;
+        }
+        #failure-area .flash_message {
+            padding: 5px;
+            color: red;
+            font-size: 20px;
+        }
     </style>
 
 </header>
@@ -179,8 +192,37 @@
 <script>
 
 
+    (function($) {
+        $.fn.flash_message = function(options) {
 
-        var oauthToken = '';
+            options = $.extend({
+                text: 'Done',
+                time: 6000,
+                how: 'before',
+                class_name: ''
+            }, options);
+
+            return $(this).each(function() {
+                if( $(this).parent().find('.flash_message').get(0) )
+                    return;
+
+                var message = $('<span />', {
+                    'class': 'flash_message ' + options.class_name, 'color':'red',
+                    text: options.text
+                }).hide().fadeIn('fast');
+
+                $(this)[options.how](message);
+
+                message.delay(options.time).fadeOut('normal', function() {
+                    $(this).remove();
+                });
+
+            });
+        };
+    })(jQuery);
+
+
+    var oauthToken = '';
         var oauthTokenSecret = '';
         // Initialize with your OAuth.io app public key
         OAuth.initialize('CbvVVPYhIM9gCS9cKlIUy2vqHcI');
@@ -214,6 +256,7 @@
 
 
             $("#contact-submit").click(function(e) {
+                $('#status-area').css('color', 'green');
                 e.preventDefault();
                 // Get form
                 var form = $('#contact')[0];
@@ -225,7 +268,7 @@
                 data.append("oauth_secret", oauthTokenSecret);
 
                 // disabled the submit button
-                //$("#submitBtn").prop("disabled", true);
+                $("#contact-submit").prop("disabled", true);
 
                 $.ajax({
                     type: "POST",
@@ -237,10 +280,20 @@
                     cache: false,
                     timeout: 600000,
                     success: function(result) {
-                        alert('ok');
+                        $('#msgDiv').slideUp();
+                        $('#fileDiv').slideUp();
+                        $('#btnDiv').slideUp();
+                        $('#status-area').flash_message({
+                            text: 'Experience shared on Twitter! Your Coupon code is on its way!',
+                            how: 'append'
+                        });
                     },
                     error: function(result) {
-                        alert('error');
+
+                        $('#failure-area').flash_message({
+                            text: 'Error while uploading the tweet! Try After some time.',
+                            how: 'append'
+                        });
                     }
                 });
             });
@@ -265,17 +318,24 @@
 <div class="container">
     <form id="contact"  method="post" enctype="multipart/form-data">
         <h3><img src="https://3rxg9qea18zhtl6s2u8jammft-wpengine.netdna-ssl.com/wp-content/uploads/2018/05/priceline-e1525714984153.png" class="logo" alt="CH Logo" ></h3>
-        <div th:if="${message}">
+        <div id="msgDiv" th:if="${message}">
             <fieldset>
                 <input type="text" tabindex="1" required autofocus name="userTweet" th:value="${message}" />
             </fieldset>
         </div>
+        <div id="fileDiv">
         <fieldset>
             <input type="file" name="file" tabindex="2" /><br/><br/>
         </fieldset>
+        </div>
+
+        <div id="btnDiv">
         <fieldset>
             <button name="submit" type="submit" id="contact-submit" data-submit="...Sending">Submit</button>
         </fieldset>
+        </div>
+        <div id="status-area"></div>
+        <div id="failure-area"></div>
     </form>
 </div>
 
